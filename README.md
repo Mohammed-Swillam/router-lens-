@@ -62,6 +62,9 @@ go build -o routerlens.exe .
 | Flag | Default | Description |
 |---|---|---|
 | `-profile` | `balanced` | Workload profile (`balanced`, `coding`, `low_latency`, `batch_throughput`, `custom`) |
+| `-compact` | `false` | Force compact table layout (fits in standard $\le 90$ column terminals) |
+| `-wide` | `false` | Force full multi-column dashboard ($\ge 125$ columns) |
+| `-card` | `false` | Force card-based view for narrow/split terminal windows ($\le 65$ columns) |
 | `-pareto` | `false` | Enable $\epsilon$-Pareto dominance filtering |
 | `-pareto-eps` | `0.02` | Tolerance margin for Pareto dominance (default 2%) |
 | `-min-uptime` | `90.0` | Minimum uptime SLA percentage threshold |

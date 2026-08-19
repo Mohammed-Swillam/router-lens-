@@ -21,6 +21,11 @@ func main() {
 	paretoFlag := flag.Bool("pareto", false, "Enable e-Pareto dominance filtering (slack e=0.02)")
 	paretoEpsFlag := flag.Float64("pareto-eps", 0.02, "Tolerance slack margin for e-Pareto filtering (default 0.02 = 2%)")
 
+	// Display Layout Flags
+	compactFlag := flag.Bool("compact", false, "Force compact table layout (< 85 columns)")
+	wideFlag := flag.Bool("wide", false, "Force wide multi-column table layout (>= 125 columns)")
+	cardFlag := flag.Bool("card", false, "Force card-based layout for narrow or windowed terminals")
+
 	// Custom Weight Override Flags
 	priceWeightFlag := flag.Float64("price-weight", -1.0, "Override weight for cost score (0.0 to 1.0)")
 	quantWeightFlag := flag.Float64("quant-weight", -1.0, "Override weight for quantization quality score (0.0 to 1.0)")
@@ -210,6 +215,15 @@ func main() {
 
 	var evaluationResults []*scorer.ModelEvaluationResult
 
+	viewMode := ui.ViewModeAuto
+	if *cardFlag {
+		viewMode = ui.ViewModeCard
+	} else if *compactFlag {
+		viewMode = ui.ViewModeCompact
+	} else if *wideFlag {
+		viewMode = ui.ViewModeWide
+	}
+
 	for _, res := range orderedResults {
 		if res.err != nil {
 			if *jsonOutputFlag {
@@ -227,7 +241,7 @@ func main() {
 		evaluationResults = append(evaluationResults, eval)
 
 		if !*jsonOutputFlag {
-			ui.RenderModelResult(os.Stdout, eval, cfg)
+			ui.RenderModelResult(os.Stdout, eval, cfg, viewMode)
 		}
 	}
 
