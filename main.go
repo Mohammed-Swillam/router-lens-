@@ -23,7 +23,7 @@ func main() {
 
 	// Display Layout Flags
 	compactFlag := flag.Bool("compact", false, "Force compact table layout (~98 columns)")
-	wideFlag := flag.Bool("wide", false, "Force wide multi-column table layout (~166 columns)")
+	wideFlag := flag.Bool("wide", false, "Force wide multi-column table layout (~171 columns)")
 	cardFlag := flag.Bool("card", false, "Force card-based layout for narrow or windowed terminals (< 100 columns)")
 
 	// Custom Weight Override Flags

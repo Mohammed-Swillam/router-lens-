@@ -136,7 +136,7 @@ func RenderModelResult(w io.Writer, res *scorer.ModelEvaluationResult, cfg score
 	if resolvedMode == ViewModeAuto || resolvedMode == "" {
 		if termWidth < 100 {
 			resolvedMode = ViewModeCard
-		} else if termWidth < 170 {
+		} else if termWidth < 172 {
 			resolvedMode = ViewModeCompact
 		} else {
 			resolvedMode = ViewModeWide
@@ -299,7 +299,7 @@ func renderCompactTable(w io.Writer, res *scorer.ModelEvaluationResult, cfg scor
 	fmt.Fprintln(w)
 }
 
-// renderWideTable renders full multi-column dashboard for large screens (~166 columns wide, >= 170 cols)
+// renderWideTable renders full multi-column dashboard for large screens (~171 columns wide, >= 172 cols)
 func renderWideTable(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer.ScoringConfig) {
 	rankW := 6
 	providerW := 18
@@ -308,7 +308,7 @@ func renderWideTable(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer.
 	cacheW := 11
 	compW := 11
 	blendedW := 12
-	scoreBreakdownW := 19
+	scoreBreakdownW := 24
 	totalScoreW := 15
 	uptimeW := 9
 	contextW := 8
