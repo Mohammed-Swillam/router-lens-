@@ -134,9 +134,9 @@ func RenderModelResult(w io.Writer, res *scorer.ModelEvaluationResult, cfg score
 	// Resolve auto mode
 	resolvedMode := mode
 	if resolvedMode == ViewModeAuto || resolvedMode == "" {
-		if termWidth < 75 {
+		if termWidth < 100 {
 			resolvedMode = ViewModeCard
-		} else if termWidth < 125 {
+		} else if termWidth < 170 {
 			resolvedMode = ViewModeCompact
 		} else {
 			resolvedMode = ViewModeWide
@@ -219,7 +219,7 @@ func RenderModelResult(w io.Writer, res *scorer.ModelEvaluationResult, cfg score
 	fmt.Fprintln(w)
 }
 
-// renderCompactTable renders a sleek ~82-column table guaranteed not to wrap on standard terminal windows
+// renderCompactTable renders a sleek ~98-column table (fits comfortably in 100-169 column terminals)
 func renderCompactTable(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer.ScoringConfig) {
 	rankW := 6
 	providerW := 18
@@ -299,7 +299,7 @@ func renderCompactTable(w io.Writer, res *scorer.ModelEvaluationResult, cfg scor
 	fmt.Fprintln(w)
 }
 
-// renderWideTable renders full multi-column dashboard for large screens (>= 125 cols)
+// renderWideTable renders full multi-column dashboard for large screens (~166 columns wide, >= 170 cols)
 func renderWideTable(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer.ScoringConfig) {
 	rankW := 6
 	providerW := 18
@@ -380,7 +380,7 @@ func renderWideTable(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer.
 	fmt.Fprintln(w)
 }
 
-// renderCardLayout renders stacked cards for very small/narrow windows (< 75 cols)
+// renderCardLayout renders stacked cards for narrow or windowed terminals (< 100 cols, ~65 cols wide)
 func renderCardLayout(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer.ScoringConfig) {
 	for _, p := range res.TopProviders {
 		rankColor := ColorYellow
@@ -402,12 +402,21 @@ func renderCardLayout(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer
 		}
 		cacheStr := formatPrice(p.CacheReadPricePerM) + "/M"
 
-		fmt.Fprintf(w, "│  %s %-12s │  %s %-10s │  %s %-8s\n",
+		quantDisplay := p.Quantization
+		if p.IsVerifiedFirstParty && (quantDisplay == "" || quantDisplay == "unknown") {
+			quantDisplay = "fp-lossless"
+		}
+		if quantDisplay == "" {
+			quantDisplay = "unknown"
+		}
+		quantDisplay = truncateString(quantDisplay, 10)
+
+		fmt.Fprintf(w, "│  %s %-12s │  %s %-10s │  %s %-10s\n",
 			colorize("Blended:", ColorDim), costStr,
 			colorize("Cache:", ColorDim), cacheStr,
-			colorize("Quant:", ColorDim), p.Quantization,
+			colorize("Quant:", ColorDim), quantDisplay,
 		)
-		fmt.Fprintf(w, "│  %s %-12s │  %s %-10s │  %s %-8s\n",
+		fmt.Fprintf(w, "│  %s %-12s │  %s %-10s │  %s %-10s\n",
 			colorize("Uptime:", ColorDim), fmt.Sprintf("%.1f%%", p.BlendedUptime),
 			colorize("Context:", ColorDim), formatContextLength(p.ContextLength),
 			colorize("Prompt:", ColorDim), formatPrice(p.PromptPricePerM)+"/M",
@@ -416,7 +425,7 @@ func renderCardLayout(w io.Writer, res *scorer.ModelEvaluationResult, cfg scorer
 			colorize("Scores:", ColorDim),
 			p.CostScore, p.QuantScore, p.RelScore, p.TTFTScore, p.TPSScore,
 		)
-		fmt.Fprintf(w, "└─────────────────────────────────────────────────────────────\n\n")
+		fmt.Fprintf(w, "└──────────────────────────────────────────────────────────────\n\n")
 	}
 }
 
