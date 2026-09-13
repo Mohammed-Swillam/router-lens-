@@ -21,6 +21,11 @@ func main() {
 	paretoFlag := flag.Bool("pareto", false, "Enable e-Pareto dominance filtering (slack e=0.02)")
 	paretoEpsFlag := flag.Float64("pareto-eps", 0.02, "Tolerance slack margin for e-Pareto filtering (default 0.02 = 2%)")
 
+	// Display Layout Flags
+	compactFlag := flag.Bool("compact", false, "Force compact table layout (~98 columns)")
+	wideFlag := flag.Bool("wide", false, "Force wide multi-column table layout (~171 columns)")
+	cardFlag := flag.Bool("card", false, "Force card-based layout for narrow or windowed terminals (< 100 columns)")
+
 	// Custom Weight Override Flags
 	priceWeightFlag := flag.Float64("price-weight", -1.0, "Override weight for cost score (0.0 to 1.0)")
 	quantWeightFlag := flag.Float64("quant-weight", -1.0, "Override weight for quantization quality score (0.0 to 1.0)")
@@ -71,6 +76,31 @@ func main() {
 	}
 
 	flag.Parse()
+ 
+	// Validate layout flags mutual exclusion
+	layoutFlagsCount := 0
+	if *compactFlag {
+		layoutFlagsCount++
+	}
+	if *wideFlag {
+		layoutFlagsCount++
+	}
+	if *cardFlag {
+		layoutFlagsCount++
+	}
+	if layoutFlagsCount > 1 {
+		fmt.Fprintln(os.Stderr, "Error: cannot specify more than one layout flag (-compact, -wide, -card)")
+		os.Exit(1)
+	}
+ 
+	viewMode := ui.ViewModeAuto
+	if *cardFlag {
+		viewMode = ui.ViewModeCard
+	} else if *compactFlag {
+		viewMode = ui.ViewModeCompact
+	} else if *wideFlag {
+		viewMode = ui.ViewModeWide
+	}
 
 	// Gather Model IDs from flags and positional arguments
 	var modelIDs []string
@@ -210,6 +240,7 @@ func main() {
 
 	var evaluationResults []*scorer.ModelEvaluationResult
 
+
 	for _, res := range orderedResults {
 		if res.err != nil {
 			if *jsonOutputFlag {
@@ -227,7 +258,7 @@ func main() {
 		evaluationResults = append(evaluationResults, eval)
 
 		if !*jsonOutputFlag {
-			ui.RenderModelResult(os.Stdout, eval, cfg)
+			ui.RenderModelResult(os.Stdout, eval, cfg, viewMode)
 		}
 	}
 
